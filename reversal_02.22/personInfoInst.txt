@@ -1,0 +1,3 @@
+name = "Gart"
+weight = 74.1
+age = 21

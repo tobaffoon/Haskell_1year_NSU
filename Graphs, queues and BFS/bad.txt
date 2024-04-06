@@ -1,0 +1,94 @@
+import Data.Graph
+--import Data.Tree
+import Data.List (delete)
+import Data.Array
+
+data RTree a = NIL | RNode a [RTree a] deriving Show
+data Queue a = Queue [a] [a]
+
+newQueue :: Queue a
+newQueue = Queue [] []
+
+empty :: Queue a -> Bool
+empty (Queue [] []) = True
+empty _             = False
+
+push :: Queue a -> a -> Queue a
+push (Queue front back) x = Queue front (x:back) -- x goes to the back of the line
+
+pop :: Queue a -> (a, Queue a)
+pop (Queue [] []) = error "No more elements left"
+
+pop (Queue [] back) = pop (Queue (reverse back) [])
+
+pop (Queue (x:front) back) = (x, Queue front back)
+
+orGraph = buildG (1, 6) [(1, 2),(1, 4),(2, 5),(3, 5),(3, 6),(4, 2),(5, 4),(6, 6)]
+
+data BFSColor = WHITE | GRAY | BLACK deriving (Show, Eq)
+data BFSVertex = BFSVertex {vert :: Vertex, c :: BFSColor, p :: Maybe Vertex} deriving Show
+type BFSEdge = (Vertex, BFSVertex)
+type BFSGraph = Array Vertex [BFSVertex]
+
+--descendants :: Graph -> Vertex -> [Vertex]
+--descendants gr v = fmap snd $ filter (\(parent, child) -> if parent == v then True else False) (edges gr)
+
+--descendants_BFS :: Graph -> Vertex -> [BFSVertex]
+--descendants_BFS gr src = fmap ((\vert -> BFSVertex {vert = vert, c = WHITE, p = Just $ src}) . snd) $ filter (\(parent, child) -> if parent == src then True else False) (edges gr)
+
+descendants_BFS :: BFSGraph -> Vertex -> [BFSVertex]
+descendants_BFS bgr src = fmap (set_parent src) (bgr ! src)
+					
+set_parent :: Vertex -> BFSVertex -> BFSVertex
+set_parent v bv = BFSVertex {vert = (vert bv), c = (c bv), p = Just $ v}
+
+--this function returns pair of white vertices AND initial list where they are painted gray
+--											|				|
+--											v				v
+paintGray_BFS :: [BFSVertex] -> ([Vertex], [BFSVertex])
+paintGray_BFS bvs = paintGray' [] bvs where
+	paintGray' :: [Vertex] -> [BFSVertex] -> ([Vertex], [BFSVertex])
+	paintGray' whites [] = (whites, [])
+	paintGray' whites (v:nvs) = do
+		let (res_whites, res_vs) = paintGray' whites nvs
+		if (c v) == WHITE
+			then (((vert v):res_whites), new_gray:res_vs)
+			else (res_whites, res_vs)
+				where new_gray = BFSVertex {vert = (vert v), c = GRAY, p = (p v)}
+
+init_BFS :: Graph -> Vertex -> BFSGraph
+{-init_BFS gr src = array (bounds gr) $ fmap createBFSRNode (assocs gr) where 
+		createBFSRNode (idx, v)	if v == src 
+									then BFSVertex {vert = v, c = GRAY, p = Nothing}
+									else BFSVertex {vert = v, c = WHITE, p = Just $ v}
+-}
+init_BFS gr src = fmap createBFSRNode gr
+	where createBFSRNode cs = fmap turnBFS cs
+			where turnBFS v = 	if v == src 
+								then BFSVertex {vert = v, c = GRAY, p = Nothing}
+								else BFSVertex {vert = v, c = WHITE, p = Nothing}
+			
+
+
+bfs :: Graph -> Vertex -> RTree Vertex
+bfs gr idx = snd $ bfs' (init_BFS gr idx) (newQueue `push` idx) where
+	
+bfs' :: BFSGraph -> Queue Vertex -> (Queue Vertex, RTree Vertex)
+bfs' bgr q = if empty q
+			 then (q, NIL)
+			 else do
+				let (y, nq) = pop q
+				let (desc_y, new_grays) = paintGray_BFS $ descendants_BFS bgr y
+				let new_bgr = bgr // [(y, new_grays)]
+				let newq = foldl (\nqq v -> nqq `push` v) nq desc_y
+				(newq, RNode y (bfs_recurs new_bgr newq))
+				
+--ДЕЛАЙ PUSH!!!!!!				
+
+bfs_recurs :: BFSGraph -> Queue Vertex -> [RTree Vertex]
+bfs_recurs bgr q = 	do
+					if empty q
+						then []
+						else do
+								let (nq, res) = bfs' bgr q
+								(res : bfs_recurs bgr nq)

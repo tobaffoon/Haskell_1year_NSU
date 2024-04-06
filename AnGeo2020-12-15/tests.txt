@@ -1,0 +1,514 @@
+--LINES
+
+--------lineAngle--------
+
+1)parallel
+
+let ro_l1 = Vc 0 0 0
+let dir_l1 = Vc 0 1 1
+let l1 = Ln ro_l1 dir_l1
+
+let ro_l2 = Vc 0 1 0 
+let dir_l2 = Vc 0 2 2
+let l2 = Ln ro_l2 dir_l2
+
+lineAngle l1 l2
+
+1.2074182697257333e-6	--it's zero
+
+
+2)45 degrees
+
+let ro_l1 = Vc 0 0 0
+let dir_l1 = Vc 0 1 1
+let l1 = Ln ro_l1 dir_l1
+
+let ro_l2 = Vc 0 1 0 
+let dir_l2 = Vc 0 0 2
+let l2 = Ln ro_l2 dir_l2
+
+lineAngle l1 l2
+
+45.00000000000001	--it's 45
+
+
+3)90 degrees
+
+let ro_l1 = Vc 0 0 0
+let dir_l1 = Vc 0 1 1
+let l1 = Ln ro_l1 dir_l1
+
+let ro_l2 = Vc 0 0 0 
+let dir_l2 = Vc 0 1 (-1)
+let l2 = Ln ro_l2 dir_l2
+
+lineAngle l1 l2
+
+90.0
+
+--------pointToLineDistance--------
+1)
+let pt = Pt 0 0 0
+let ro_l = Vc 0 0 0
+let dir_l = Vc 0 1 1
+let l = Ln ro_l dir_l
+
+pointToLineDistance pt l
+
+0.0
+
+2)
+let pt = Pt 0 0 0
+let ro_l = Vc 0 0 1
+let dir_l = Vc 0 1 1
+let l = Ln ro_l dir_l
+
+pointToLineDistance pt l
+
+0.7071067811865475		--sqrt(2)/2
+
+
+
+--------skewLinesDistance--------
+
+check with: https://matworld.ru/analytic-geometry/rasstojanie-prjamaja-prjamaja-3d.php
+
+1)
+let ro_1 = Vc 1 (-1) 4
+let dir_1 = Vc 3 8 2
+let l1 = Ln ro_1 dir_1
+
+let ro_2 = Vc (-2) 3 (-1)
+let dir_2 = Vc 1 2 0
+let l2 = Ln ro_2 dir_2
+
+skewLinesDistance l1 l2
+6.123724356957946
+
+2)
+let ro_1 = Vc 0 2 (-4)
+let dir_1 = Vc 1 1 1
+let l1 = Ln ro_1 dir_1
+
+let ro_2 = Vc (-1) 0 (-1)
+let dir_2 = Vc 0 2 0
+let l2 = Ln ro_2 dir_2
+
+skewLinesDistance l1 l2
+2.82842712474619
+
+3)
+let ro_1 = Vc 1 0 1
+let dir_1 = Vc (-2) 1 (-2)
+let l1 = Ln ro_1 dir_1
+
+let ro_2 = Vc 2 (-3) 2
+let dir_2 = Vc (-5) 5 (-5)
+let l2 = Ln ro_2 dir_2
+
+skewLinesDistance l1 l2
+0.0
+
+skewLinesDistance l1 l1
+NaN
+
+4)Параллельные
+let l1 = Ln (Vc 1 0 1) (Vc (-2) 1 (-2))
+let l2 = Ln (Vc 2 (-3) 2) (Vc (-2) 1 (-2))
+
+skewLinesDistance l1 l2
+NaN
+
+--PLANES
+
+--------planeFrom3Points--------
+
+check with: https://ru.onlinemschool.com/math/assistance/cartesian_coordinate/plane/
+
+1)
+let pt1 = Pt 1 (-9) 3
+let pt2 = Pt 4 (-2) 5
+let pt3 = Pt (-1) 7 (-3)
+
+planeFrom3Points pt1 pt2 pt3
+(0.1891891891891892; 0.0; 0.0) + t*(-74.0; 14.0; 62.0)
+
+planeToCPlane $ planeFrom3Points pt1 pt2 pt3
+(-74.0)*x + (14.0)*y + (62.0)*z + (14.0)
+
+2)
+let pt1 = Pt 1 0 1
+let pt2 = Pt (-1) 1 (-1)
+let pt3 = Pt (-3) 2 (-3)
+
+planeFrom3Points pt1 pt2 pt3
+
+*** Exception: The case is degenerate
+
+--------planeFrom2Lines--------
+
+1)
+let pt1 = Pt 1 (-9) 3
+let pt2 = Pt 4 (-2) 5
+let pt3 = Pt (-1) 7 (-3)
+let l1 = lineFrom2Points pt1 pt2
+let l2 = lineFrom2Points pt2 pt3
+
+planeFrom2Lines l1 l2
+(0.1891891891891892; 0.0; 0.0) + t*(-74.0; 14.0; 62.0)
+
+2)
+let pt1 = Pt 1 0 1
+let pt2 = Pt (-1) 1 (-1)
+let pt3 = Vc 2 (-3) 2
+let l1 = lineFrom2Points pt1 pt2
+let l2 = Ln pt3 (dir l1)
+
+planeFrom2Lines l1 l2
+
+(0.0; 0.0; 0.0) + t*(5.0; -0.0; -5.0)
+
+3)Одна линия
+let pt1 = Pt 1 0 1
+let pt2 = Pt (-1) 1 (-1)
+let pt3 = Pt (-3) 2 (-3)
+let pt4 = Pt 3 (-1) 3
+let l1 = lineFrom2Points pt1 pt2
+let l2 = lineFrom2Points pt3 pt4
+
+planeFrom2Lines l1 l2
+
+*** Exception: The lines are skew
+
+
+Дальше проверял в https://www.geogebra.org/calculator
+
+
+--------planeToCPlane--------
+
+let m = Vc 1 (-2) 3
+let n = Vc 2 2 8
+let pl = Pl m n
+
+planeToCPlane pl
+
+(2.0)*x + (2.0)*y + (8.0)*z + (-22.0)
+
+--------cplaneToPlane--------
+let cpl = CPl 2 2 8 (-22)
+
+cplaneToPlane cpl
+
+(11.0; 0.0; 0.0) + t*(2.0; 2.0; 8.0)
+
+--------pointOnPlane--pointOnCPlane--------
+
+let pt1 = Pt 1 (-9) 3
+let pt2 = Pt 4 (-2) 5
+let pt3 = Pt (-1) 7 (-3)
+let l1 = lineFrom2Points pt1 pt2
+let l2 = lineFrom2Points pt2 pt3
+
+let pl = planeFrom2Lines l1 l2
+let cpl = planeToCPlane pl
+(-74.0)*x + (14.0)*y + (62.0)*z + (14.0) or (-37)x + 7y +31z = -7
+
+pointOnPlane pt1 pl
+
+True
+
+pointOnPlane (Pt 0 (-1) 0) pl
+
+True
+
+pointOnPlane (Pt 0 (-1) 1) pl
+
+False
+
+pointOnCPlane pt1 cpl
+
+True
+
+pointOnCPlane (Pt 0 (-1) 0) cpl
+
+True
+
+pointOnCPlane (Pt 0 (-1) 1) cpl
+
+False
+
+--------lineOnPlane--lineOnCPlane--------
+
+1)
+let pt1 = Pt 1 (-9) 3
+let pt2 = Pt 4 (-2) 5
+let pt3 = Pt (-1) 7 (-3)
+let l1 = lineFrom2Points pt1 pt2
+let l2 = lineFrom2Points pt2 pt3
+
+let pl = planeFrom2Lines l1 l2
+let cpl = planeToCPlane pl
+
+lineOnPlane l1 pl
+
+True
+
+lineOnCPlane l1 cpl
+
+True
+
+2)
+let pt1 = Pt 1 (-9) 3
+let pt2 = Pt 4 (-2) 5
+let pt3 = Pt (-1) 7 (-3)
+let l1 = lineFrom2Points pt1 pt2
+let l2 = lineFrom2Points pt2 pt3
+let l3 = Ln (ro l1) (pls (dir l2) (Vc 1 1 1))
+
+let pl = planeFrom2Lines l1 l2
+let cpl = planeToCPlane pl
+
+lineOnPlane l3 pl
+
+False			--l3 начинается там же, где и l1, а направление имеет такое же, как и l2, но сложенное с вектором (1,1,1)
+
+lineOnCPlane l3 cpl
+
+False
+
+--------Eq--Plane--CPlane--------
+
+1)Заданные разными функциями
+let pt1 = Pt 1 (-9) 3
+let pt2 = Pt 4 (-2) 5
+let pt3 = Pt (-1) 7 (-3)
+let l1 = lineFrom2Points pt1 pt2
+let l2 = lineFrom2Points pt2 pt3
+
+let pl = planeFrom2Lines l1 l2
+let pl' = planeFrom3Points pt1 pt2 pt3
+let cpl = planeToCPlane pl
+let cpl' = planeToCPlane pl'
+
+pl == pl'
+
+True
+
+cpl == cpl'
+
+True
+
+2)pl' изменена
+let pt1 = Pt 1 (-9) 3
+let pt2 = Pt 4 (-2) 5
+let pt3 = Pt (-1) 7 (-3)
+let pt4 = Pt 3 (-1) 3
+let l1 = lineFrom2Points pt1 pt2
+let l2 = lineFrom2Points pt2 pt3
+
+let pl = planeFrom2Lines l1 l2
+let pl' = planeFrom3Points pt1 pt2 pt4
+let cpl = planeToCPlane pl
+let cpl' = planeToCPlane pl'
+
+pl == pl'
+
+False
+
+cpl == cpl'
+
+False
+
+3)Через разные точки, принадлежащие одной плоскости
+let pt1 = Pt 1 (-9) 3
+let pt2 = Pt 4 (-2) 5
+let pt3 = Pt (-1) 7 (-3)
+let l1 = lineFrom2Points pt1 pt2
+let l2 = lineFrom2Points pt2 pt3
+
+let pt1_a = Pt 0 (-1) 0
+let pt2_a = Pt 0 (-32) 7
+let pt3_a = Pt 7 (36) 0
+
+let pl = planeFrom2Lines l1 l2
+let pl' = planeFrom3Points pt1_a pt2_a pt3_a
+let cpl = planeToCPlane pl
+let cpl' = planeToCPlane pl'
+
+pl == pl'
+
+True
+
+cpl == cpl'
+
+True
+
+--------planeParall--------
+1)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let pl' = Pl (Vc 1 (-80) 10) (Vc 0 0 (-1))
+
+planeParall pl pl'
+
+True
+
+2)
+let cpl = CPl 1 2 3 2
+let cpl' = CPl 2 4 6 5
+
+cplaneParall cpl cpl'
+
+True
+
+3)
+let pl = Pl (Vc 0 0 0) (Vc 1 2 3)
+let pl' = Pl (Vc 1 2 3) (Vc 1 1 1)
+
+planeParall pl pl'
+
+False
+
+4)
+let cpl = CPl 1 2 3 2
+let cpl' = CPl 1 4 6 5
+
+cplaneParall cpl cpl'
+
+False
+
+--------planePerp--------
+
+1)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let pl' = Pl (Vc 1 (-80) 10) (Vc 0 (-1) 0)
+
+planePerp pl pl'
+
+True
+
+2)
+let cpl = CPl 1 (-1) 0 10
+let cpl' = CPl (-1) (-1) 1 15
+
+cplanePerp cpl cpl'
+
+True
+
+3)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let pl' = Pl (Vc 1 (-80) 10) (Vc 0 (-1) 1)
+
+planePerp pl pl'
+
+False
+
+4)
+let cpl = CPl 1 (-1) (-1) 10
+let cpl' = CPl (-1) (-1) 1 15
+
+cplanePerp cpl cpl'
+
+False
+
+--------lineAndPlanePerp--------
+
+1)
+let l = Ln (Vc 0 0 0) (Vc 1 2 3)
+let pl = Pl (Vc 0 0 0) (Vc 2 4 6)
+
+lineAndPlanePerp l pl
+
+True
+
+2)
+let l = Ln (Vc 0 0 0) (Vc 1 (-1) 1)
+let pl = Pl (Vc 12 13 15) (Vc 3 3 (-3))
+
+lineAndPlanePerp l pl
+
+False
+
+--------planeAngle--------
+1)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let pl' = Pl (Vc 1 (-80) 10) (Vc 0 (-1) 0)
+
+planeAngle pl pl'
+
+90.0
+
+2)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let pl' = Pl (Vc 1 (-80) 10) (Vc 0 (-1) 1)
+
+planeAngle pl pl'
+
+45.00000000000001
+
+3)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let pl' = Pl (Vc 1 (-80) 10) (Vc 0 0 (-1))
+
+planeAngle pl pl'
+
+180.0
+
+--------lineAndPlaneAngle--------
+1)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let l = Ln (Vc 1 (-80) 10) (Vc 0 (-1) 0)
+
+lineAndPlaneAngle l pl
+
+180.0
+
+2)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let l = Ln (Vc 1 (-80) 10) (Vc 0 (-1) 1)
+
+lineAndPlaneAngle l pl
+
+135.0
+
+3)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let l = Ln (Vc 1 (-80) 10) (Vc 0 0 (-1))
+
+lineAndPlaneAngle l pl
+
+270.0
+
+--------pointToPLaneDistance--------
+1)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let pt = Pt 100110 (-1232913) 2
+
+pointToPLaneDistance pt pl
+
+1.9999999997644948		--it supposed to be 2
+
+2)
+let pl = Pl (Vc 1 2 3) (Vc (-1) 2 (-3))
+let pt = Pt 0 (-3) 0
+
+pointToPLaneDistance pt pl
+
+0.0
+
+3)
+let cpl = CPl (-1) 1 (-3) 3
+let pt = Pt 0 (-3) 0
+
+pointToCPLaneDistance pt cpl
+
+0.0
+
+4)
+let pl = Pl (Vc 0 0 0) (Vc 0 0 1)
+let pt = Pt 100110 (-1232913) 2
+
+let cpl = planeToCPlane pl
+
+pointToCPLaneDistance pt cpl
+
+2.0
